@@ -2,7 +2,7 @@ import { ShapeAttrs } from '@antv/g2';
 import { Options, StyleAttr } from '../../types';
 import { HierarchyOption } from '../../utils/hierarchy/types';
 
-type DrilldownConfig = {
+type DrillDownConfig = {
   readonly breadCrumb?: {
     /** 根文本 */
     rootText?: string;
@@ -29,5 +29,5 @@ export interface TreemapOptions extends Omit<Options, 'data'> {
   /** 是否允许下钻，默认为：false */
   readonly enableDrillDown?: boolean;
   /** 下钻交互相关配置 */
-  readonly drillDownConfig?: DrilldownConfig;
+  readonly drillDownConfig?: DrillDownConfig;
 }
