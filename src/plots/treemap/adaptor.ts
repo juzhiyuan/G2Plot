@@ -1,13 +1,14 @@
 import { polygon as basePolygon } from '../../adaptor/geometries/polygon';
 import { Params } from '../../core/adaptor';
+import { getLocale } from '../../core/locale';
 import { interaction as commonInteraction, animation, theme, legend, annotation, tooltip } from '../../adaptor/common';
 import { flow, deepAssign } from '../../utils';
 import {
   transformData,
   findInteraction,
-  enableInteraction,
   getFommatInteractions,
   getAdjustAppendPadding,
+  enableDrillInteraction,
 } from './utils';
 import { TreemapOptions } from './types';
 
@@ -17,7 +18,7 @@ import { TreemapOptions } from './types';
  */
 function defaultOptions(params: Params<TreemapOptions>): Params<TreemapOptions> {
   const { options } = params;
-  const { colorField } = options;
+  const { colorField, locale } = options;
 
   return deepAssign(
     {
@@ -48,6 +49,21 @@ function defaultOptions(params: Params<TreemapOptions>): Params<TreemapOptions> 
             };
           },
         },
+        enableDrillDown: false,
+        drillDownConfig: {
+          breadCrumb: {
+            rootText: getLocale(locale).get(['general', 'root']),
+            dividerText: '/',
+            textStyle: {
+              fontSize: 12,
+              fill: 'rgba(0, 0, 0, 0.65)',
+              cursor: 'pointer',
+            },
+            activeStyle: {
+              fill: '#87B5FF',
+            },
+          },
+        },
       },
     },
     params
@@ -65,7 +81,7 @@ function geometry(params: Params<TreemapOptions>): Params<TreemapOptions> {
   const data = transformData({
     data: options.data,
     colorField: options.colorField,
-    enableDrillDown: enableInteraction(options.interactions, 'treemap-drill-down'),
+    enableDrillDown: enableDrillInteraction(options),
     hierarchyConfig,
   });
 
@@ -109,12 +125,12 @@ function axis(params: Params<TreemapOptions>): Params<TreemapOptions> {
  */
 export function interaction(params: Params<TreemapOptions>): Params<TreemapOptions> {
   const { chart, options } = params;
-  const { interactions, hierarchyConfig } = options;
+  const { interactions } = options;
 
   commonInteraction({
     chart,
     options: {
-      interactions: getFommatInteractions(interactions, hierarchyConfig),
+      interactions: getFommatInteractions(options),
     },
   });
 
@@ -134,8 +150,8 @@ export function interaction(params: Params<TreemapOptions>): Params<TreemapOptio
   }
 
   // 适应下钻交互面包屑
-  const enableDrillInteraction = enableInteraction(interactions, 'treemap-drill-down');
-  if (enableDrillInteraction) {
+  const enableDrillDown = enableDrillInteraction(options);
+  if (enableDrillDown) {
     // 为面包屑在底部留出 25px 的空间
     chart.appendPadding = getAdjustAppendPadding(chart.appendPadding);
   }
